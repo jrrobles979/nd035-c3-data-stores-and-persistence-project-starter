@@ -29,8 +29,8 @@ public class Schedule {
 
     @ElementCollection(targetClass= EmployeeSkill.class)
     @Enumerated(EnumType.STRING) // Possibly optional (I'm not sure) but defaults to ORDINAL.
-    @CollectionTable(name="schedule")
-    @Column(name="activities") // Column name in Employee
+    //@CollectionTable(name="schedule")
+    //@Column(name="activities") // Column name in Employee
     private Set<EmployeeSkill> activities;
 
 

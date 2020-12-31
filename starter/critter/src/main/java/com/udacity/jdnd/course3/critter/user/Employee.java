@@ -20,20 +20,16 @@ public class Employee {
 
     @ElementCollection(targetClass=EmployeeSkill.class)
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name="employee")
-    @Column(name="skills")
+    //@CollectionTable(name="employee")
+    //@Column(name="skills")
     private Set<EmployeeSkill> skills;
 
     @ElementCollection(targetClass= DayOfWeek.class)
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name="employee")
-    @Column(name="daysAvailable")
+   // @CollectionTable(name="employee")
+   // @Column(name="daysAvailable")
     private Set<DayOfWeek> daysAvailable;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "schedule_id")
-    @ManyToMany
-    private List<Schedule> schedule;
 
     public Employee() {
 

@@ -6,6 +6,7 @@ import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -16,13 +17,12 @@ public class Customer {
     private long id;
     @Nationalized
     private String name;
-    @Size(min=0,max=10)
     private String phoneNumber;
     @Column(length = 500)
     private String notes;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer", cascade = CascadeType.ALL)
-    private List<Pet> pets;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Pet> pets ;
 
     public Customer() {
 

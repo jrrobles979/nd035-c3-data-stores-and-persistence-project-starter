@@ -22,17 +22,17 @@ public class Pet {
     @Nationalized
     private String name;
     //private long ownerId;
-    @ManyToOne(fetch = FetchType.LAZY  ) //many pets can belong to one owner
+    @ManyToOne(fetch = FetchType.EAGER  ) //many pets can belong to one owner
     @JoinColumn(name = "customer_id")
-    private Customer owner;
+    private Customer customer;
     private LocalDate birthDate;
     @Column(length = 500)
     private String notes;
 
     //@ManyToOne(fetch = FetchType.LAZY) //many plants can belong to one delivery
     //@JoinColumn(name = "schedule_id")
-    @ManyToMany
-    private List<Schedule> schedule;
+    //@ManyToMany
+    //private List<Schedule> schedule;
 
     public Pet() {
 
