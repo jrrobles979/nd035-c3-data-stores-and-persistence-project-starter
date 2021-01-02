@@ -1,15 +1,16 @@
 package com.udacity.jdnd.course3.critter.user;
 
-import com.udacity.jdnd.course3.critter.exception.EmployeeNotFoundException;
+import com.udacity.jdnd.course3.critter.exception.CustomerNotFoundException;
 import com.udacity.jdnd.course3.critter.exception.UserControllerException;
-import com.udacity.jdnd.course3.critter.pet.PetRepository;
+import com.udacity.jdnd.course3.critter.pet.Pet;
+import com.udacity.jdnd.course3.critter.pet.PetService;
+import com.udacity.jdnd.course3.critter.schedule.ScheduleService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,41 +24,50 @@ import java.util.stream.Collectors;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private PetRepository petRepository;
+    //@Autowired
+    //private PetRepository petRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private PetService petService;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private UserService userService;
+
+    @Autowired
+    private ScheduleService scheduleService;
+
+    //@Autowired
+    //private EmployeeRepository employeeRepository;
 
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
-        Customer customer = convertDTOToCustomer(customerDTO);
-        Customer customerSaved = customerRepository.save(customer);
-        if (customerSaved != null) {
-            return convertCustomerToDto( customerSaved );
+        Customer customerToSave = convertDTOToCustomer(customerDTO);
+        if(customerDTO.getPetIds() == null){
+            customerDTO.setPetIds(new ArrayList<>());
         }
-        throw new UserControllerException("Customer not saved");
+
+        return convertCustomerToDto( userService.saveCustomer(customerToSave, customerDTO.getPetIds()) );
     }
 
     @GetMapping("/customer")
     public List<CustomerDTO> getAllCustomers(){
-        List<Customer> listCustomer = customerRepository.findAll();
+        List<Customer> listCustomer = userService.listAllCustomers();
         return listCustomer.stream().map( customer -> convertCustomerToDto (customer) ).collect(Collectors.toList());
     }
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        throw new UnsupportedOperationException();
+        Pet pet = petService.findPet(petId);
+        if(pet.getCustomer() == null)
+            throw new CustomerNotFoundException("Pet doesn't have an owner");
+        return  convertCustomerToDto( pet.getCustomer() );
     }
 
     @PostMapping("/employee")
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
 
         Employee employee = convertDTOToEmployee(employeeDTO);
-        Employee employeeSaved = employeeRepository.save(employee);
+        Employee employeeSaved = userService.saveEmployee(employee);
         if (employeeSaved != null) {
             return convertEmployeeToDto(employeeSaved);
         }
@@ -68,23 +78,26 @@ public class UserController {
     @PostMapping("/employee/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
 
-        Optional<Employee> optionalEmployee= employeeRepository.findById(employeeId);
-        if(!optionalEmployee.isPresent()){
-            throw new EmployeeNotFoundException("Employee not found. id:" + employeeId);
-        }
-
-        return convertEmployeeToDto(optionalEmployee.get());
+        return convertEmployeeToDto(userService.findEmployeeById(employeeId));
 
     }
 
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+
+       Employee employee = userService.findEmployeeById(employeeId);
+       employee.setDaysAvailable( daysAvailable );
+       Employee employeeSaved = userService.saveEmployee(employee);
     }
 
     @GetMapping("/employee/availability")
-    public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        throw new UnsupportedOperationException();
+    public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeRequestDTO) {
+
+       return userService.getByDaysAvailablesAndSkillSet(employeeRequestDTO).stream()
+               .map( employee -> convertEmployeeToDto(employee) ).collect(Collectors.toList());
+
+
+        //throw new UnsupportedOperationException();
     }
 
 

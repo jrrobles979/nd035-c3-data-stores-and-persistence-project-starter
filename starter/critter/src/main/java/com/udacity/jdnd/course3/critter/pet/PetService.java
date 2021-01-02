@@ -1,10 +1,13 @@
 package com.udacity.jdnd.course3.critter.pet;
 
 import com.udacity.jdnd.course3.critter.exception.CustomerNotFoundException;
+import com.udacity.jdnd.course3.critter.exception.PetControllerException;
+import com.udacity.jdnd.course3.critter.exception.PetNotFoundException;
 import com.udacity.jdnd.course3.critter.user.Customer;
 import com.udacity.jdnd.course3.critter.user.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 import java.util.Optional;
@@ -18,35 +21,36 @@ public class PetService {
     @Autowired
     private CustomerRepository customerRepository;
 
-
-    public Pet save(Pet pet, long ownerId){
-        Optional<Customer> optionalCustomer = customerRepository.findById(ownerId);
+    @Transactional
+    public Pet save(Pet pet, long idOwner) throws CustomerNotFoundException, PetControllerException {
+        Optional<Customer> optionalCustomer =  customerRepository.findById(idOwner);
         if(!optionalCustomer.isPresent()){
-            throw new CustomerNotFoundException("Pet owner not found, id:" + ownerId);
+            throw new CustomerNotFoundException("Customer not exist, id:" + idOwner);
         }
-        Customer customer = optionalCustomer.get();
-        pet.setCustomer(customer);
-        return petRepository.save(pet);
+        Customer owner = optionalCustomer.get();
+        pet.setCustomer(owner);
+        Pet petSaved = petRepository.save(pet);
+        owner.addPet(petSaved);
+        Customer ownerSaved = customerRepository.save(owner);
+        return petSaved;
     }
 
-    public Pet findPet(@PathVariable long petId) {
+
+    public Pet findPet(@PathVariable long petId) throws PetNotFoundException {
         Optional<Pet> optionalPet = petRepository.findById(petId);
         if(!optionalPet.isPresent()){
-           return null;
+           throw new PetNotFoundException("Pet not found, id:" + petId);
         }
         return  optionalPet.get();
     }
 
     public List<Pet> listAll(){
-        //List<Pet> listPets = petRepository.findAll();
-        //List<PetDTO> petDTOS = listPets.stream().map( pet -> convertPetToDto(pet) ).collect(Collectors.toList());
-        //return listPets.stream().map( pet-> convertPetToDto(pet) ).collect(Collectors.toList());
+
         return petRepository.findAll();
     }
 
     public List<Pet> findPetsByOwnerId(long ownerId){
-        //List<Pet> listPets = petRepository.findByCustomerId(ownerId);
-        //return listPets.stream().map( pet-> convertPetToDto(pet) ).collect(Collectors.toList());
+
         return petRepository.findByCustomerId(ownerId);
     }
 

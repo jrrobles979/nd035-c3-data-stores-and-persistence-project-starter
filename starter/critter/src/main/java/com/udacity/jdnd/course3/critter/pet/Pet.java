@@ -1,17 +1,15 @@
 package com.udacity.jdnd.course3.critter.pet;
 
-import com.udacity.jdnd.course3.critter.schedule.Schedule;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.udacity.jdnd.course3.critter.user.Customer;
 import lombok.Data;
 import org.hibernate.annotations.Nationalized;
-
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+
 
 @Data
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 public class Pet {
 
     @Id
@@ -21,10 +19,12 @@ public class Pet {
     private PetType type;
     @Nationalized
     private String name;
-    //private long ownerId;
-    @ManyToOne(fetch = FetchType.EAGER  ) //many pets can belong to one owner
+
+    @ManyToOne(fetch = FetchType.LAZY  ) //many pets can belong to one owner
     @JoinColumn(name = "customer_id")
+    @JsonBackReference
     private Customer customer;
+
     private LocalDate birthDate;
     @Column(length = 500)
     private String notes;
