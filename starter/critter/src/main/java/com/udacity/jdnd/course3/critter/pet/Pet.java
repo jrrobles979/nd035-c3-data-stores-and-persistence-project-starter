@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class Pet {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Enumerated(EnumType.STRING)
     private PetType type;

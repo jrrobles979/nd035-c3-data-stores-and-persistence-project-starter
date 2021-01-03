@@ -14,6 +14,7 @@ import java.util.Optional;
 
 
 @Service
+@Transactional
 public class PetService {
     @Autowired
     private PetRepository petRepository;
@@ -21,7 +22,7 @@ public class PetService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    @Transactional
+
     public Pet save(Pet pet, long idOwner) throws CustomerNotFoundException, PetControllerException {
         Optional<Customer> optionalCustomer =  customerRepository.findById(idOwner);
         if(!optionalCustomer.isPresent()){

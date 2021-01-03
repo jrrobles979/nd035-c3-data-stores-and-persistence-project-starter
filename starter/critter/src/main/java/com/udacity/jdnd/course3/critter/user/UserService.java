@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class UserService {
 
     @Autowired
@@ -25,7 +26,6 @@ public class UserService {
     private EmployeeRepository employeeRepository;
 
 
-    @Transactional
     public Customer saveCustomer(Customer customer, List<Long> petIds) throws PetNotFoundException {
        List<Pet> pets =  petIds.stream().map( petId ->  {
            Optional<Pet> optionalPet = petRepository.findById(petId);
